@@ -1,0 +1,8 @@
+{
+    "STOCH": {
+        "K_LENGTH": 14,
+        "K_SMOOTHING": 4,
+        "D_SMOOTHING": 4,
+        "VALUE": 75
+    }
+}

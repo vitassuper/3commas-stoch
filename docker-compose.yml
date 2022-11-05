@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  stoch3com-bot:
+    build:
+      context: ./
+    network_mode: "host"
+    restart: always
+    volumes:
+      - type: bind
+        source: std.log
+        target: /app/std.log
+
