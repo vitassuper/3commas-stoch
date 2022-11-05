@@ -34,33 +34,40 @@ def get_signal():
         stoch_results = df.ta.stoch(k=config.get('K_LENGTH'), d = config.get('D_SMOOTHING'), smooth_k = config.get('K_SMOOTHING'))
         stoch_results15m = df2.ta.stoch(k=config.get('K_LENGTH'), d = config.get('D_SMOOTHING'), smooth_k = config.get('K_SMOOTHING'))
 
-        prev_stock_k = round(stoch_results.iloc[-2][0], 2)
-        prev_stock_d = round(stoch_results.iloc[-2][1], 2)
+        prev_stoch_k = round(stoch_results.iloc[-2][0], 2)
+        prev_stoch_d = round(stoch_results.iloc[-2][1], 2)
 
-        current_stock_k = round(stoch_results.iloc[-1][0], 2)
-        current_stock_d = round(stoch_results.iloc[-1][1], 2)
+        current_stoch_k = round(stoch_results.iloc[-1][0], 2)
+        current_stoch_d = round(stoch_results.iloc[-1][1], 2)
 
 
-        prev_stock15m_k = round(stoch_results15m.iloc[-2][0], 2)
-        prev_stock15m_d = round(stoch_results15m.iloc[-2][1], 2)
+        prev_stoch15m_k = round(stoch_results15m.iloc[-2][0], 2)
+        prev_stoch15m_d = round(stoch_results15m.iloc[-2][1], 2)
 
-        current_stock15m_k = round(stoch_results15m.iloc[-1][0], 2)
-        current_stock15m_d = round(stoch_results15m.iloc[-1][1], 2)
+        current_stoch15m_k = round(stoch_results15m.iloc[-1][0], 2)
+        current_stoch15m_d = round(stoch_results15m.iloc[-1][1], 2)
 
-        # if (current_stock15m_k < current_stock15m_d) and (prev_stock15m_k > prev_stock15m_d) and (current_stock15m_d > 80):
+        # if (current_stoch15m_k < current_stoch15m_d) and (prev_stoch15m_k > prev_stoch15m_d) and (current_stoch15m_d > 80):
         #     print(f"Found signal")
 
         #     send_signal("USD_" + pair, 9984618)
 
         #     send_notification(
-        #         f"Pair: {pair} - stoch signal prev k: {prev_stock15m_k} prev d: {prev_stock15m_d}  current k: {current_stock15m_k} current d: {current_stock15m_d}")
+        #         f"Pair: {pair} - stoch signal prev k: {prev_stoch15m_k} prev d: {prev_stoch15m_d}  current k: {current_stoch15m_k} current d: {current_stoch15m_d}")
 
-        if (current_stock_k < current_stock_d) and (prev_stock_k > prev_stock_d) and (current_stock_d > 75) and (current_stock15m_k > 55):
+        if stoch_cross(prev_stoch_k, prev_stoch_d, current_stoch_k, current_stoch_d, 75) and (current_stoch15m_k > 55):
             print(f"Found signal")
 
             send_signal("USD_" + pair, 9974970)
 
             send_notification(
-                f"Pair: {pair} - stoch signal prev k: {prev_stock_k} prev d: {prev_stock_d}  current k: {current_stock_k} current d: {current_stock_d}")
+                f"Pair: {pair} - stoch 4h prev_k: {prev_stoch_k} prev_d: {prev_stoch_d}  curr_k: {current_stoch_k} curr_d: {current_stoch_d}")
 
-    send_notification(f"Finish iteration")
+    send_notification(f"Finish searching")
+
+def stoch_cross(prev_stoch_k, prev_stoch_d, current_stoch_k, current_stoch_d, min_level):
+    return (current_stoch_k < current_stoch_d) \
+        and (prev_stoch_k > prev_stoch_d) \
+        and (current_stoch_d > min_level) \
+        and (current_stoch_k > min_level)
+
