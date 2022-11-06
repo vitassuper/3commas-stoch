@@ -61,7 +61,8 @@ def get_signal():
             send_signal("USD_" + pair, 9974970)
 
             send_notification(
-                f"Pair: {pair} - stoch 4h prev_k: {prev_stoch_k} prev_d: {prev_stoch_d}  curr_k: {current_stoch_k} curr_d: {current_stoch_d}")
+                f"Pair: {pair} - stoch 4h prev_k: {prev_stoch_k} prev_d: {prev_stoch_d}  curr_k: {current_stoch_k} curr_d: {current_stoch_d} \
+                    15m prev_k: {prev_stoch15m_k} prev_d: {prev_stoch15m_d}  curr_k: {current_stoch15m_k} curr_d: {current_stoch15m_d}")
 
     send_notification(f"Finish searching")
 
