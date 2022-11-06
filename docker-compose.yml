@@ -7,7 +7,5 @@ services:
     network_mode: "host"
     restart: always
     volumes:
-      - type: bind
-        source: std.log
-        target: /app/std.log
+      - .:/app
 
