@@ -27,5 +27,5 @@ This project is licensed under the [GPL-3.0 License](LICENSE)
 
 ## Credits
 
-* [Vilatiy Klychkov](https://github.com/vitassuper) - the greatest financial wheeler-dealer
+* [Vitaliy Klychkov](https://github.com/vitassuper) - the greatest financial wheeler-dealer
 * [Mykola Symon](https://github.com/andinoriel) - compote manufacturer
