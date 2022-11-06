@@ -25,21 +25,26 @@ def get_signal():
     send_notification(f"Start searching")
 
     for pair in get_markets():
-        ohlcv = exchange.fetch_ohlcv(pair, '4h')
-        ohlcv2 = exchange.fetch_ohlcv(pair, '15m')
+        # Fetch 1m candles
+        ohlcv = exchange.fetch_ohlcv(pair, '1m')
+        df1m = pd.DataFrame(ohlcv, columns=['time', 'open', 'high', 'low', 'close', 'volume'])
 
-        df = pd.DataFrame(ohlcv, columns=['time', 'open', 'high', 'low', 'close', 'volume'])
-        df2 = pd.DataFrame(ohlcv2, columns=['time', 'open', 'high', 'low', 'close', 'volume'])
+        # Fetch 1h candles
+        ohlcv = exchange.fetch_ohlcv(pair, '1h')
+        df1h = pd.DataFrame(ohlcv, columns=['time', 'open', 'high', 'low', 'close', 'volume'])
 
-        stoch_results = df.ta.stoch(k=config.get('K_LENGTH'), d = config.get('D_SMOOTHING'), smooth_k = config.get('K_SMOOTHING'))
-        stoch_results15m = df2.ta.stoch(k=config.get('K_LENGTH'), d = config.get('D_SMOOTHING'), smooth_k = config.get('K_SMOOTHING'))
-
+        # Calculate necessary timeframe
+        df4h = recalculate_candlestick(df1h, '4H')
+        df15m = recalculate_candlestick(df1m, '15min')
+        
+        stoch_results = df4h.ta.stoch(k=config.get('K_LENGTH'), d = config.get('D_SMOOTHING'), smooth_k = config.get('K_SMOOTHING'))
+        stoch_results15m = df15m.ta.stoch(k=config.get('K_LENGTH'), d = config.get('D_SMOOTHING'), smooth_k = config.get('K_SMOOTHING'))
+       
         prev_stoch_k = round(stoch_results.iloc[-2][0], 2)
         prev_stoch_d = round(stoch_results.iloc[-2][1], 2)
 
         current_stoch_k = round(stoch_results.iloc[-1][0], 2)
         current_stoch_d = round(stoch_results.iloc[-1][1], 2)
-
 
         prev_stoch15m_k = round(stoch_results15m.iloc[-2][0], 2)
         prev_stoch15m_d = round(stoch_results15m.iloc[-2][1], 2)
@@ -47,15 +52,10 @@ def get_signal():
         current_stoch15m_k = round(stoch_results15m.iloc[-1][0], 2)
         current_stoch15m_d = round(stoch_results15m.iloc[-1][1], 2)
 
-        # if (current_stoch15m_k < current_stoch15m_d) and (prev_stoch15m_k > prev_stoch15m_d) and (current_stoch15m_d > 80):
-        #     print(f"Found signal")
+        print(f"Check pair {pair}")
 
-        #     send_signal("USD_" + pair, 9984618)
-
-        #     send_notification(
-        #         f"Pair: {pair} - stoch signal prev k: {prev_stoch15m_k} prev d: {prev_stoch15m_d}  current k: {current_stoch15m_k} current d: {current_stoch15m_d}")
-
-        if stoch_cross(prev_stoch_k, prev_stoch_d, current_stoch_k, current_stoch_d, 75) and (current_stoch15m_k > 55):
+        if stoch_cross(prev_stoch_k, prev_stoch_d, current_stoch_k, current_stoch_d, 65) and \
+            stoch_cross(prev_stoch15m_k, prev_stoch15m_d, current_stoch15m_k, current_stoch15m_d, 55):
             print(f"Found signal")
 
             send_signal("USD_" + pair, 9974970)
@@ -71,3 +71,17 @@ def stoch_cross(prev_stoch_k, prev_stoch_d, current_stoch_k, current_stoch_d, mi
         and (current_stoch_d > min_level) \
         and (current_stoch_k > min_level)
 
+def recalculate_candlestick(df, time_frame):
+    aggs = {
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'volume': 'sum'
+    }
+
+    result_df = df.copy()
+
+    result_df['time'] = pd.to_datetime(result_df['time'], unit='ms')
+
+    return result_df.resample(time_frame, on='time').apply(aggs)

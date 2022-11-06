@@ -5,7 +5,7 @@ import logging
 
 
 def main():
-    logging.basicConfig(filename="std.log", format='%(asctime)s %(message)s', level=logging.DEBUG)
+    logging.basicConfig(filename="std.log", format='%(asctime)s %(message)s', level=logging.ERROR)
     load_dotenv()
 
     try:
